@@ -1,0 +1,27 @@
+version: '3'
+services:
+  frontend-web:
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    build:
+      # within the context of current directory to find Dockerfile.dev to build
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - '3000:3000'
+    # add following 2 volumes can hot reload on port
+    volumes:
+      # mount the node_modules folder from your host machine into the container， means that the container will be able to access the dependencies without having to copy them into its own filesystem, resulting in faster container startup times.
+      - /app/node_modules
+      # mounting current directory to the /app inside container (sync change two sides)
+      - .:/app
+  frontend-tests:
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - /app/node_modules
+      - .:/app
+    command: ['npm', 'run', 'test']
